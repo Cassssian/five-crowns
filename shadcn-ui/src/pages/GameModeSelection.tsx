@@ -36,7 +36,7 @@ export default function GameModeSelection() {
                             <h2 className="text-6xl font-bold text-white mb-4">
                                 Partie Hors-connexion
                             </h2>
-                            <p className="text-2xl text-white/90 max-w-md">
+                            <p className="text-2xl text-white/90 max-w-md mx-auto">
                                 Jouez localement contre l'IA
                             </p>
                             <p className="text-lg text-white/70 mt-4">
@@ -55,11 +55,11 @@ export default function GameModeSelection() {
                 </motion.button>
 
                 {/* Éclair SVG au centre */}
-                <div className="absolute left-1/2 top-0 -translate-x-1/2 h-full w-32 pointer-events-none z-20">
+                <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-20 pointer-events-none z-20 flex items-center justify-center">
                     <svg
-                        viewBox="0 0 100 1000"
+                        viewBox="0 0 40 600"
                         className="h-full w-full drop-shadow-2xl"
-                        preserveAspectRatio="xMidYMid meet"
+                        preserveAspectRatio="xMidYMid slice"
                     >
                         <defs>
                             <linearGradient id="lightning-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -76,28 +76,38 @@ export default function GameModeSelection() {
                             </filter>
                         </defs>
 
-                        {/* Éclair principal */}
+                        {/* Éclair principal - forme naturelle en zigzag */}
                         <path
-                            d="M 50 0 L 35 350 L 55 350 L 30 600 L 50 600 L 35 850 L 70 500 L 50 500 L 65 250 L 45 250 Z"
+                            d="M 20 0 L 12 120 L 25 120 L 10 240 L 23 240 L 8 360 L 25 360 L 12 480 L 28 480 L 15 600 L 35 350 L 22 350 L 32 200 L 20 200 L 30 80 L 18 80 Z"
                             fill="url(#lightning-gradient)"
                             stroke="#FFED4E"
-                            strokeWidth="3"
+                            strokeWidth="1"
                             filter="url(#glow)"
                         />
 
                         {/* Éclairs secondaires pour l'effet */}
                         <path
-                            d="M 45 200 L 40 280 L 48 280 Z"
+                            d="M 18 60 L 15 90 L 22 90 Z"
                             fill="#FFED4E"
                             opacity="0.6"
                         />
                         <path
-                            d="M 55 450 L 60 530 L 52 530 Z"
+                            d="M 28 180 L 31 210 L 24 210 Z"
                             fill="#FFED4E"
                             opacity="0.6"
                         />
                         <path
-                            d="M 48 700 L 43 780 L 51 780 Z"
+                            d="M 16 300 L 13 330 L 20 330 Z"
+                            fill="#FFED4E"
+                            opacity="0.6"
+                        />
+                        <path
+                            d="M 25 420 L 28 450 L 21 450 Z"
+                            fill="#FFED4E"
+                            opacity="0.6"
+                        />
+                        <path
+                            d="M 18 540 L 15 570 L 22 570 Z"
                             fill="#FFED4E"
                             opacity="0.6"
                         />
@@ -145,7 +155,7 @@ export default function GameModeSelection() {
             </div>
 
             {/* Titre en haut */}
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 text-center pointer-events-none">
+            <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 text-center pointer-events-none">
                 <motion.h1
                     initial={{ y: -50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}

@@ -5,6 +5,8 @@ import { Card } from './Card';
 import { Button } from '@/components/ui/button';
 import { Card as CardType, Combination, CombinationType, CardSuit } from '@/types/game.types';
 import { cn } from '@/lib/utils';
+import { BADGES } from '@/constants/gameRules';
+import PlayerBadge from './PlayerBadge';
 
 export function GameBoard() {
   const {
@@ -193,7 +195,9 @@ export function GameBoard() {
         <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
           <h3 className="text-white font-bold mb-4">Scores</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {players.map((player) => (
+            {players.map((player) => {
+              const playerBadge = BADGES.find(b => b.id === player.currentBadgeId) || BADGES[0];
+              return (
               <div
                 key={player.id}
                 className={cn(
@@ -206,6 +210,7 @@ export function GameBoard() {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-2xl">{player.isAI ? '🤖' : '👤'}</span>
                   <span className="text-white font-semibold">{player.username}</span>
+                  <PlayerBadge badge={playerBadge} size="sm" />
                 </div>
                 <div className="text-white text-xl font-bold">
                   Score: {player.score}
@@ -214,7 +219,8 @@ export function GameBoard() {
                   Cartes: {player.hand.length}
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
       </div>
