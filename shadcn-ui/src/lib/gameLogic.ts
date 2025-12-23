@@ -335,12 +335,20 @@ export function aiMakeDecision(
   };
 }
 
-// Essaie de former des combinaisons automatiquement (pour l'IA)
-function tryFormCombinations(hand: Card[], round: number): Combination[] {
+// Essaie de former des combinaisons automatiquement (utilisé par l'IA et l'UI)
+export function tryFormCombinations(hand: Card[], round: number): Combination[] {
   const combinations: Combination[] = [];
   const usedCards = new Set<string>();
 
-  // Essayer de former des brelans
+  // Extraire la liste des jokers disponibles (permanents et variables selon la manche)
+  const wildcardsPool: Card[] = hand.filter((c) => isWildCard(c, round));
+  const takeWildcards = (count: number): Card[] => {
+    const taken = wildcardsPool.filter((c) => !usedCards.has(c.id)).slice(0, Math.max(0, count));
+    taken.forEach((c) => usedCards.add(c.id));
+    return taken;
+  };
+
+  // 1) Essayer de former des brelans (SET) en complétant avec des jokers si besoin
   const cardsByValue = new Map<CardValue, Card[]>();
   for (const card of hand) {
     if (!usedCards.has(card.id)) {
@@ -353,16 +361,23 @@ function tryFormCombinations(hand: Card[], round: number): Combination[] {
   }
 
   for (const [_, cards] of cardsByValue) {
-    if (cards.length >= GAME_RULES.MIN_COMBINATION_SIZE) {
-      combinations.push({
-        type: CombinationType.SET,
-        cards: cards.slice(0, GAME_RULES.MIN_COMBINATION_SIZE),
-      });
-      cards.slice(0, GAME_RULES.MIN_COMBINATION_SIZE).forEach((c) => usedCards.add(c.id));
+    const normals = cards.filter((c) => !isWildCard(c, round));
+    const alreadyUsedNormals = normals.filter((c) => usedCards.has(c.id));
+    if (alreadyUsedNormals.length > 0) continue;
+
+    const need = Math.max(0, GAME_RULES.MIN_COMBINATION_SIZE - normals.length);
+    const availableWilds = wildcardsPool.filter((w) => !usedCards.has(w.id)).length;
+    if (normals.length >= 1 && normals.length + availableWilds >= GAME_RULES.MIN_COMBINATION_SIZE) {
+      const used = [...normals];
+      used.forEach((c) => usedCards.add(c.id));
+      const jokers = takeWildcards(need);
+      const comboCards = [...used, ...jokers];
+      combinations.push({ type: CombinationType.SET, cards: comboCards });
     }
   }
 
-  // Essayer de former des suites
+  // 2) Essayer de former des suites (RUN) en complétant avec des jokers aux extrémités
+  //    ET en comblant les trous internes avec des jokers (ex.: 8,10,V + Joker ⇒ Joker=9)
   const cardsBySuit = new Map<CardSuit, Card[]>();
   for (const card of hand) {
     if (!usedCards.has(card.id) && !isWildCard(card, round)) {
@@ -376,35 +391,52 @@ function tryFormCombinations(hand: Card[], round: number): Combination[] {
 
   for (const [_, cards] of cardsBySuit) {
     const sorted = cards.sort((a, b) => a.value - b.value);
-    let runCards: Card[] = [];
+    let current: Card[] = [];
+
+    const finalizeCurrent = () => {
+      if (current.length === 0) return;
+      const availWilds = wildcardsPool.filter((w) => !usedCards.has(w.id)).length;
+      if (current.length < GAME_RULES.MIN_COMBINATION_SIZE && current.length + availWilds >= GAME_RULES.MIN_COMBINATION_SIZE) {
+        const need = GAME_RULES.MIN_COMBINATION_SIZE - current.length;
+        const jokers = takeWildcards(need);
+        const combo = [...current, ...jokers];
+        combinations.push({ type: CombinationType.RUN, cards: combo });
+        current.forEach((c) => usedCards.add(c.id));
+      } else if (current.length >= GAME_RULES.MIN_COMBINATION_SIZE) {
+        combinations.push({ type: CombinationType.RUN, cards: [...current] });
+        current.forEach((c) => usedCards.add(c.id));
+      }
+      current = [];
+    };
 
     for (let i = 0; i < sorted.length; i++) {
-      if (runCards.length === 0) {
-        runCards.push(sorted[i]);
-      } else {
-        const lastCard = runCards[runCards.length - 1];
-        if (sorted[i].value === lastCard.value + 1) {
-          runCards.push(sorted[i]);
-        } else {
-          if (runCards.length >= GAME_RULES.MIN_COMBINATION_SIZE) {
-            combinations.push({
-              type: CombinationType.RUN,
-              cards: [...runCards],
-            });
-            runCards.forEach((c) => usedCards.add(c.id));
-          }
-          runCards = [sorted[i]];
-        }
+      if (current.length === 0) {
+        current.push(sorted[i]);
+        continue;
       }
+      const last = current[current.length - 1];
+      const gap = sorted[i].value - last.value - 1; // 0 si consécutif, 1 si un trou, etc.
+      if (gap === 0) {
+        current.push(sorted[i]);
+        continue;
+      }
+
+      const availWilds = wildcardsPool.filter((w) => !usedCards.has(w.id)).length;
+      if (gap > 0 && gap <= availWilds) {
+        // Insérer autant de jokers que nécessaire pour combler le gap interne
+        const jokers = takeWildcards(gap);
+        current.push(...jokers);
+        current.push(sorted[i]);
+        continue;
+      }
+
+      // Gap non comblable → finaliser la séquence en cours puis repartir
+      finalizeCurrent();
+      current.push(sorted[i]);
     }
 
-    if (runCards.length >= GAME_RULES.MIN_COMBINATION_SIZE) {
-      combinations.push({
-        type: CombinationType.RUN,
-        cards: [...runCards],
-      });
-      runCards.forEach((c) => usedCards.add(c.id));
-    }
+    // Fin de boucle: finaliser la dernière séquence (avec padding si possible)
+    finalizeCurrent();
   }
 
   return combinations;

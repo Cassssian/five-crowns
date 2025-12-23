@@ -101,10 +101,10 @@ export default function MainMenu() {
     return (
         <div className="relative min-h-screen overflow-hidden flex items-center justify-center p-4">
             {/* Background animé avec dégradé */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 pointer-events-none">
                 {/* Cercles animés de couleur qui bougent */}
                 <motion.div
-                    className={`absolute w-96 h-96 rounded-full blur-3xl transition-all duration-[5000ms] ease-in-out ${circleColors[0]}`}
+                    className={`absolute w-96 h-96 rounded-full blur-3xl transition-colors [transition-duration:5000ms] ease-in-out ${circleColors[0]}`}
                     animate={{
                         x: [0, 100, -50, 0],
                         y: [0, -100, 50, 0],
@@ -115,11 +115,11 @@ export default function MainMenu() {
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    style={{ top: '10%', left: '10%' }}
+                    style={{ top: '10%', left: '10%', willChange: 'transform' }}
                 />
                 
                 <motion.div
-                    className={`absolute w-80 h-80 rounded-full blur-3xl transition-all duration-[5000ms] ease-in-out ${circleColors[1]}`}
+                    className={`absolute w-80 h-80 rounded-full blur-3xl transition-colors [transition-duration:5000ms] ease-in-out ${circleColors[1]}`}
                     animate={{
                         x: [0, -80, 100, 0],
                         y: [0, 100, -80, 0],
@@ -130,11 +130,11 @@ export default function MainMenu() {
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    style={{ top: '50%', right: '15%' }}
+                    style={{ top: '50%', right: '15%', willChange: 'transform' }}
                 />
                 
                 <motion.div
-                    className={`absolute w-[500px] h-[500px] rounded-full blur-3xl transition-all duration-[5000ms] ease-in-out ${circleColors[2]}`}
+                    className={`absolute w-[500px] h-[500px] rounded-full blur-3xl transition-colors [transition-duration:5000ms] ease-in-out ${circleColors[2]}`}
                     animate={{
                         x: [0, 120, -100, 0],
                         y: [0, -80, 120, 0],
@@ -145,11 +145,11 @@ export default function MainMenu() {
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    style={{ bottom: '10%', left: '20%' }}
+                    style={{ bottom: '10%', left: '20%', willChange: 'transform' }}
                 />
                 
                 <motion.div
-                    className={`absolute w-72 h-72 rounded-full blur-3xl transition-all duration-[5000ms] ease-in-out ${circleColors[3]}`}
+                    className={`absolute w-72 h-72 rounded-full blur-3xl transition-colors [transition-duration:5000ms] ease-in-out ${circleColors[3]}`}
                     animate={{
                         x: [0, -120, 80, 0],
                         y: [0, 80, -100, 0],
@@ -160,11 +160,11 @@ export default function MainMenu() {
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    style={{ top: '60%', left: '5%' }}
+                    style={{ top: '60%', left: '5%', willChange: 'transform' }}
                 />
                 
                 <motion.div
-                    className={`absolute w-96 h-96 rounded-full blur-3xl transition-all duration-[5000ms] ease-in-out ${circleColors[4]}`}
+                    className={`absolute w-96 h-96 rounded-full blur-3xl transition-colors [transition-duration:5000ms] ease-in-out ${circleColors[4]}`}
                     animate={{
                         x: [0, 90, -120, 0],
                         y: [0, -120, 90, 0],
@@ -175,11 +175,11 @@ export default function MainMenu() {
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    style={{ top: '20%', right: '10%' }}
+                    style={{ top: '20%', right: '10%', willChange: 'transform' }}
                 />
                 
                 <motion.div
-                    className={`absolute w-64 h-64 rounded-full blur-3xl transition-all duration-[5000ms] ease-in-out ${circleColors[5]}`}
+                    className={`absolute w-64 h-64 rounded-full blur-3xl transition-colors [transition-duration:5000ms] ease-in-out ${circleColors[5]}`}
                     animate={{
                         x: [0, -90, 110, 0],
                         y: [0, 110, -90, 0],
@@ -190,7 +190,7 @@ export default function MainMenu() {
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    style={{ bottom: '30%', right: '25%' }}
+                    style={{ bottom: '30%', right: '25%', willChange: 'transform' }}
                 />
             </div>
 
@@ -198,7 +198,7 @@ export default function MainMenu() {
             <div className="relative z-10 max-w-2xl w-full">
                 {/* Logo et titre */}
                 <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                    <h1 className="text-6xl font-bold text-white mb-4 drop-shadow-2xl">
+                    <h1 className="text-6xl phone:text-3xl font-bold text-white mb-4 drop-shadow-2xl">
                         👑 Les Cinq Rois 👑
                     </h1>
                     <p className="text-xl text-white/80">Five Crowns - Jeu en Ligne</p>

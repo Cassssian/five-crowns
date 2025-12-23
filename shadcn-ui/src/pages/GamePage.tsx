@@ -2,78 +2,24 @@
 import { useNavigate } from 'react-router-dom';
 import { GameBoard } from '@/components/game/GameBoard';
 import { useGameStore } from '@/stores/gameStore';
-import { GamePlayer, PlayerStatus, GameStatus } from '@/types/game.types';
+import { GameStatus, GamePlayer } from '@/types/game.types';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function GamePage() {
     const navigate = useNavigate();
-    const { initializeGame, gameStatus, players, endGame } = useGameStore();
+    const { gameStatus, players, endGame } = useGameStore();
     const [isInitialized, setIsInitialized] = useState(false);
     const [winner, setWinner] = useState<GamePlayer | null>(null);
 
     useEffect(() => {
-        if (!isInitialized) {
-            // Initialiser une partie de démonstration avec 4 joueurs (1 humain + 3 IA)
-            const demoPlayers: GamePlayer[] = [
-                {
-                    id: 'player-1',
-                    username: 'Vous',
-                    avatarUrl: '',
-                    currentBadgeId: 'badge_1',
-                    isAI: false,
-                    isReady: true,
-                    status: PlayerStatus.ACTIVE,
-                    position: 0,
-                    score: 0,
-                    hand: [],
-                    hasFinishedRound: false,
-                },
-                {
-                    id: 'ai-1',
-                    username: 'IA Alice',
-                    avatarUrl: '',
-                    currentBadgeId: 'badge_2',
-                    isAI: true,
-                    isReady: true,
-                    status: PlayerStatus.ACTIVE,
-                    position: 1,
-                    score: 0,
-                    hand: [],
-                    hasFinishedRound: false,
-                },
-                {
-                    id: 'ai-2',
-                    username: 'IA Bob',
-                    avatarUrl: '',
-                    currentBadgeId: 'badge_3',
-                    isAI: true,
-                    isReady: true,
-                    status: PlayerStatus.ACTIVE,
-                    position: 2,
-                    score: 0,
-                    hand: [],
-                    hasFinishedRound: false,
-                },
-                {
-                    id: 'ai-3',
-                    username: 'IA Charlie',
-                    avatarUrl: '',
-                    currentBadgeId: 'badge_4',
-                    isAI: true,
-                    isReady: true,
-                    status: PlayerStatus.ACTIVE,
-                    position: 3,
-                    score: 0,
-                    hand: [],
-                    hasFinishedRound: false,
-                },
-            ];
-
-            initializeGame(demoPlayers, 'player-1');
-            setIsInitialized(true);
+        // Si aucune partie n'est en cours (accès direct à /game), renvoyer vers le lobby
+        if (gameStatus === GameStatus.WAITING) {
+            navigate('/lobby');
+            return;
         }
-    }, [isInitialized, initializeGame]);
+        setIsInitialized(true);
+    }, [gameStatus, navigate]);
 
     useEffect(() => {
         if (gameStatus === GameStatus.COMPLETED) {
@@ -168,8 +114,8 @@ export default function GamePage() {
         <div className="relative">
             <GameBoard />
 
-            {/* Bouton retour */}
-            <div className="fixed top-4 left-4 z-50">
+            {/* Bouton retour (descendu un peu plus bas) */}
+            <div className="fixed top-20 left-4 z-50">
                 <Button
                     onClick={() => navigate('/')}
                     variant="outline"

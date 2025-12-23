@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGameStore } from '@/stores/gameStore';
 import { BADGES } from '@/constants/gameRules';
 import PlayerBadge from '@/components/game/PlayerBadge';
+import ProfileMenuMobile from '@/components/game/ProfileMenuMobile';
 import { Badge } from '@/types/game.types';
 
 const AVATARS = ['👤', '🧑', '👨', '👩', '🧔', '👱', '🧑‍🦰', '👨‍🦱'];
@@ -38,6 +39,7 @@ export default function Lobby() {
     const [maxPlayers, setMaxPlayers] = useState('4');
     const [timerEnabled, setTimerEnabled] = useState(true);
     const [isReady, setIsReady] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
     // Simulation de joueurs dans le lobby
     const [players, setPlayers] = useState<LobbyPlayer[]>([
@@ -107,14 +109,19 @@ export default function Lobby() {
             }
         }
 
-        // Initialiser le jeu avec les joueurs du lobby
-        startGame(players.map(p => ({
-            id: p.id,
-            username: p.username,
-            avatar: p.avatar,
-            badge: p.badge,
-            isAI: p.id.startsWith('ai-'),
-        })));
+        // Initialiser le jeu avec les paramètres du lobby
+        startGame({
+            players: players.map(p => ({
+                id: p.id,
+                username: p.username,
+                avatar: p.avatar,
+                badge: p.badge,
+                isAI: p.id.startsWith('ai-'),
+            })),
+            mode: isOffline ? 'offline' : 'online',
+            timerEnabled,
+            myPlayerId: '1',
+        });
 
         navigate('/game');
     };
@@ -144,21 +151,32 @@ export default function Lobby() {
         <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-8">
             <div className="max-w-6xl mx-auto">
                 {/* En-tête */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-8 phone:flex-wrap phone:gap-4">
                     <Button
                         onClick={() => navigate('/')}
                         variant="outline"
-                        className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                        className="bg-white/10 border-white/20 text-white hover:bg-white/20 phone:text-sm phone:px-3 phone:py-2"
                     >
                         ← Retour au menu
                     </Button>
-                    <h1 className="text-4xl font-bold text-white">{isOffline ? 'Salon hors ligne' : 'Salon en ligne'}</h1>
-                    <div className="w-32" /> {/* Spacer */}
+                    {/* Bouton burger pour mobile */}
+                    <Button
+                        onClick={() => setIsProfileMenuOpen(true)}
+                        className="hidden phone:flex bg-white/10 border-white/20 text-white hover:bg-white/20 w-10 h-10 p-0 items-center justify-center"
+                        variant="outline"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </Button>
+                    <h1 className="text-4xl phone:text-2xl phone:w-full phone:text-center phone:order-3 font-bold text-white">{isOffline ? 'Salon hors ligne' : 'Salon en ligne'}</h1>
+
+                    <div className="w-32 phone:hidden" /> {/* Spacer pour desktop */}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Configuration de la partie */}
-                    <Card className="p-6 bg-white/10 backdrop-blur-md border-white/20">
+                    {/* Configuration de la partie - Caché sur mobile */}
+                    <Card className="p-6 bg-white/10 backdrop-blur-md border-white/20 phone:hidden">
                         <h2 className="text-2xl font-bold text-white mb-6">Configuration</h2>
 
                         <div className="space-y-6">
@@ -320,28 +338,30 @@ export default function Lobby() {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: index * 0.1 }}
-                                    className={`p-4 rounded-lg flex items-center justify-between ${
+                                    className={`p-4 rounded-lg flex items-center justify-between phone:flex-col phone:items-start ${
                                         player.isReady
                                             ? 'bg-green-500/20 border-2 border-green-500'
                                             : 'bg-white/5 border-2 border-white/20'
                                     }`}
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-4xl">{player.avatar}</div>
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                        <span className="text-white font-semibold text-lg">
-                          {player.username}
-                        </span>
-                                                <PlayerBadge badge={player.badge} size="sm" />
-                                                {player.isHost && (
-                                                    <span className="text-xs bg-yellow-500 text-black px-2 py-1 rounded-full font-bold">
-                            HÔTE
-                          </span>
-                                                )}
+                                    <div className="flex items-center gap-4 phone:w-full">
+                                        <div className="text-4xl phone:text-3xl">{player.avatar}</div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 phone:flex-col phone:items-start">
+                                                <span className="text-white font-semibold text-lg">
+                                                    {player.username}
+                                                </span>
+                                                <div className="flex items-center gap-2 phone:mt-2">
+                                                    <PlayerBadge badge={player.badge} size="sm" />
+                                                    {player.isHost && (
+                                                        <span className="text-xs bg-yellow-500 text-black px-2 py-1 rounded-full font-bold">
+                                                            HÔTE
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                             {!isOffline && (
-                                                <div className="text-white/70 text-sm">
+                                                <div className="text-white/70 text-sm mt-1">
                                                     {player.isReady ? '✓ Prêt' : '⏳ En attente...'}
                                                 </div>
                                             )}
@@ -353,6 +373,7 @@ export default function Lobby() {
                                             onClick={() => handleRemovePlayer(player.id)}
                                             variant="destructive"
                                             size="sm"
+                                            className="phone:w-full phone:mt-3"
                                         >
                                             Retirer
                                         </Button>
@@ -397,6 +418,24 @@ export default function Lobby() {
                         )}
                     </Card>
                 </div>
+                
+                {/* Menu burger mobile */}
+                <ProfileMenuMobile
+                    isOpen={isProfileMenuOpen}
+                    onClose={() => setIsProfileMenuOpen(false)}
+                    username={username}
+                    setUsername={setUsername}
+                    selectedAvatar={selectedAvatar}
+                    setSelectedAvatar={setSelectedAvatar}
+                    selectedBadge={selectedBadge}
+                    setSelectedBadge={setSelectedBadge}
+                    maxPlayers={maxPlayers}
+                    setMaxPlayers={setMaxPlayers}
+                    timerEnabled={timerEnabled}
+                    setTimerEnabled={setTimerEnabled}
+                    onUpdateProfile={handleUpdateProfile}
+                    isOffline={isOffline}
+                />
             </div>
         </div>
     );
